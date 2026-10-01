@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Class Arcade · 6학년 수업 게임</title>
+<link href="lib/fonts/pretendard.css" rel="stylesheet">
+<style>
+:root{
+  --f:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Noto Sans CJK KR",system-ui,sans-serif;
+  --emoji:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
+  --bg:#F2F2F7; --card:#FFFFFF; --label:#1C1C1E; --sec:#8E8E93; --sep:rgba(60,60,67,.14); --blue:#0A84FF;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){--bg:#000;--card:#1C1C1E;--label:#F2F2F7;--sec:#98989F;--sep:rgba(255,255,255,.12)} }
+:root[data-theme="dark"]{--bg:#000;--card:#1C1C1E;--label:#F2F2F7;--sec:#98989F;--sep:rgba(255,255,255,.12)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--label);font-family:var(--f);-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+a{color:inherit;text-decoration:none}
+.wrap{width:min(1080px,100%);margin:0 auto;padding:28px 20px 60px}
+.date{font-size:13px;font-weight:700;color:var(--sec);text-transform:uppercase;letter-spacing:.04em}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:22px}
+h1{font-size:40px;font-weight:800;letter-spacing:-.03em;margin:2px 0 0}
+.me{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#5E5CE6,#0A84FF);color:#fff;font-weight:800;font-size:15px}
+
+/* 투데이 카드 */
+.hero{position:relative;display:block;border-radius:28px;overflow:hidden;min-height:430px;color:#fff;box-shadow:0 20px 50px rgba(0,0,0,.18);transition:transform .25s ease}
+.hero:active{transform:scale(.985)}
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 70%}
+.hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,30,70,.62) 0%,rgba(8,30,70,.15) 38%,rgba(0,0,0,0) 55%,rgba(0,0,0,.65) 100%)}
+.hero .tx{position:absolute;left:24px;right:24px;top:22px;z-index:1}
+.hero .kick{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.85}
+.hero h2{font-size:38px;font-weight:800;letter-spacing:-.03em;margin:6px 0 0;line-height:1.05;max-width:560px}
+.hero .bar{position:absolute;left:0;right:0;bottom:0;z-index:1;display:flex;align-items:center;gap:12px;padding:14px 20px;background:rgba(30,30,40,.35);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
+.hero .bar .nm{flex:1;min-width:0}
+.hero .bar b{display:block;font-size:16px;font-weight:700}
+.hero .bar span{font-size:13px;opacity:.8}
+
+h3.sec{font-size:24px;font-weight:800;letter-spacing:-.02em;margin:36px 0 12px;display:flex;justify-content:space-between;align-items:baseline}
+h3.sec small{font-size:15px;font-weight:600;color:var(--blue)}
+
+/* 앱 카드 */
+.app{background:var(--card);border-radius:24px;padding:18px 18px 16px;margin-bottom:16px;box-shadow:0 1px 0 var(--sep)}
+.row{display:flex;align-items:center;gap:14px}
+.icon{flex:0 0 auto;width:72px;height:72px;border-radius:17px;display:grid;place-items:center;font-size:42px;font-family:var(--emoji);box-shadow:inset 0 0 0 .5px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.5),0 6px 16px rgba(0,0,0,.12)}
+.icon.s{width:46px;height:46px;border-radius:11px;font-size:27px}
+.info{flex:1;min-width:0}
+.info b{display:block;font-size:19px;font-weight:700;letter-spacing:-.02em}
+.info span{display:block;font-size:14px;color:var(--sec);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.get{flex:0 0 auto;border:0;border-radius:999px;background:rgba(10,132,255,.12);color:var(--blue);font-family:var(--f);font-weight:800;font-size:15px;padding:7px 20px;letter-spacing:.02em;cursor:pointer}
+.hero .get{background:rgba(255,255,255,.95);color:var(--blue)}
+.meta{display:flex;gap:0;margin:16px 0 12px;border-top:1px solid var(--sep);border-bottom:1px solid var(--sep);overflow-x:auto;scrollbar-width:none}
+.meta::-webkit-scrollbar{display:none}
+.meta div{flex:1 0 110px;text-align:center;padding:10px 6px;border-right:1px solid var(--sep)}
+.meta div:last-child{border-right:0}
+.meta small{display:block;font-size:11px;font-weight:600;color:var(--sec);text-transform:uppercase;letter-spacing:.03em}
+.meta b{display:block;font-size:19px;font-weight:800;color:var(--sec);margin:3px 0 1px;letter-spacing:-.02em}
+.meta span{font-size:11.5px;color:var(--sec)}
+.shots{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 10px;margin:0 -2px}
+.shots img{flex:0 0 auto;height:230px;border-radius:16px;scroll-snap-align:start;box-shadow:inset 0 0 0 1px var(--sep),0 4px 14px rgba(0,0,0,.1);background:#ddd}
+.desc{font-size:15px;line-height:1.6;margin:6px 0 0;color:var(--label)}
+.desc em{font-style:normal;color:var(--sec)}
+.privacy{display:flex;gap:12px;align-items:center;margin-top:14px;padding:12px 14px;border-radius:16px;background:var(--bg)}
+.privacy .pi{font-size:26px;font-family:var(--emoji)}
+.privacy b{display:block;font-size:14.5px}
+.privacy span{font-size:13px;color:var(--sec)}
+.foot{margin-top:30px;font-size:12.5px;color:var(--sec);line-height:1.7;text-align:center}
+@media (max-width:640px){ h1{font-size:34px} .hero{min-height:360px} .hero h2{font-size:30px} .shots img{height:170px} .icon{width:64px;height:64px;font-size:36px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div><div class="date" id="date"></div><h1>Today</h1></div>
+    <div class="me" aria-hidden="true">6-1</div>
+  </div>
+
+  <a class="hero" href="combo/">
+    <img src="assets/hero.jpg" alt="World Tour Island로 개발한 열대 산호섬">
+    <div class="tx"><div class="kick">새로 나온 게임 · 수학 × 사회</div><h2>퍼즐로 벌고,<br>교과서로 허가받아<br>세계를 개발하세요</h2></div>
+    <div class="bar">
+      <div class="icon s" style="background:linear-gradient(135deg,#FF9F0A,#FF375F)">🌏</div>
+      <div class="nm"><b>World Tour Island × Skyscraper</b><span>수학 퍼즐 + 사회 관광지 개발</span></div>
+      <span class="get">열기</span>
+    </div>
+  </a>
+
+  <h3 class="sec">수업 게임 <small>3개</small></h3>
+
+  <section class="app">
+    <div class="row">
+      <div class="icon" style="background:linear-gradient(135deg,#40C8E0,#0A84FF)">🏝️</div>
+      <div class="info"><b>World Tour Island</b><span>세계의 기후와 지형으로 관광지를 개발해요</span></div>
+      <a class="get" href="world/">열기</a>
+    </div>
+    <div class="meta">
+      <div><small>과목</small><b>사회</b><span>6-2 · 1단원</span></div>
+      <div><small>교과서</small><b>12~47</b><span>쪽</span></div>
+      <div><small>섬</small><b>6</b><span>기후별</span></div>
+      <div><small>조사</small><b>48</b><span>문제</span></div>
+      <div><small>결과물</small><b>📣</b><span>홍보 포스터</span></div>
+    </div>
+    <div class="shots"><img src="assets/world-1.jpg" alt="열대 산호섬 개발 화면"><img src="assets/world-3.jpg" alt="침엽수림 피오르 섬"><img src="assets/world-2.jpg" alt="관광 상품 홍보 포스터"></div>
+    <p class="desc">열대 산호섬부터 북극 툰드라까지, 기후에 어울리는 관광 상품을 개발해요. 교과서를 조사할수록 고상 가옥, 게르, 케이블카 같은 특산 체험이 열리고, 마지막엔 홍보 포스터를 만들어요.</p>
+  </section>
+
+  <section class="app">
+    <div class="row">
+      <div class="icon" style="background:linear-gradient(135deg,#5E5CE6,#0A84FF)">🏙️</div>
+      <div class="info"><b>Skyline City</b><span>스카이스크래퍼 퍼즐로 나만의 도시 짓기</span></div>
+      <a class="get" href="skyline/">열기</a>
+    </div>
+    <div class="meta">
+      <div><small>과목</small><b>수학</b><span>공간과 입체</span></div>
+      <div><small>퍼즐</small><b>32</b><span>4×4 · 5×5</span></div>
+      <div><small>건물</small><b>60</b><span>종</span></div>
+      <div><small>도구</small><b>🧱</b><span>3D 쌓기나무</span></div>
+      <div><small>결과물</small><b>🏆</b><span>완공 인증</span></div>
+    </div>
+    <div class="shots"><img src="assets/skyline-1.jpg" alt="스카이라인 시티 도시 화면"><img src="assets/skyline-2.jpg" alt="스카이라인 시티 야경"></div>
+    <p class="desc">종이로 푼 스카이스크래퍼 퍼즐을 입력하면 건설 자금이 들어와요. 3D 쌓기나무로 위·앞·옆에서 본 모양을 확인하고, 32개를 다 풀면 도시가 완공돼요.</p>
+  </section>
+
+  <section class="app">
+    <div class="row">
+      <div class="icon" style="background:linear-gradient(135deg,#FF9F0A,#FF375F)">🌏</div>
+      <div class="info"><b>World Tour Island × Skyscraper</b><span>수학 시간엔 자금, 사회 시간엔 허가</span></div>
+      <a class="get" href="combo/">열기</a>
+    </div>
+    <div class="meta">
+      <div><small>과목</small><b>수학+사회</b><span>통합</span></div>
+      <div><small>퍼즐</small><b>32</b><span>💰 자금</span></div>
+      <div><small>조사</small><b>48</b><span>🔓 허가</span></div>
+      <div><small>랜드마크</small><b>🏆</b><span>스카이스크래퍼 타워</span></div>
+    </div>
+    <div class="shots"><img src="assets/combo-1.jpg" alt="합친 버전 사막 섬 화면"><img src="assets/combo-2.jpg" alt="합친 버전 연구소 화면"></div>
+    <p class="desc">두 게임을 하나로 합쳤어요. 퍼즐로 번 돈과 사회 조사로 받은 허가가 모두 있어야 특산 체험을 지을 수 있어요. <em>수학·사회 두 과목을 한 섬에서 이어 가요.</em></p>
+  </section>
+
+  <section class="app">
+    <div class="privacy"><span class="pi">🛡️</span><div><b>데이터가 수집되지 않음</b><span>로그인·광고·분석 도구가 없고, 진행 기록은 이 기기에만 저장돼요.</span></div></div>
+  </section>
+
+  <div class="foot">이름 칸에는 실명 대신 별명이나 번호를 써요.<br>Pretendard (SIL OFL) · three.js (MIT)</div>
+</div>
+<script>
+try{ const d = new Date(); document.getElementById('date').textContent = d.toLocaleDateString('ko-KR', {month:'long', day:'numeric', weekday:'long'}); }catch(e){}
+</script>
+</body>
+</html>
