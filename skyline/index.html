@@ -371,6 +371,17 @@ button:active:not(:disabled){transform:scale(.97)}
 .toast{background:rgba(28,28,30,.9);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-radius:18px;font-weight:600;font-size:14.5px;padding:12px 18px}
 @media (max-width:999px){ .map{margin:8px} .pz-body{margin:4px 8px 0} }
 
+
+.mission{position:absolute;left:14px;bottom:14px;z-index:2;width:min(270px,44%);background:rgba(255,255,255,.9);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border-radius:18px;padding:10px 13px 11px;color:#1C1C1E;box-shadow:0 10px 26px rgba(0,0,0,.2);border:0;text-align:left;font-family:var(--body)}
+.mission small{display:block;font-size:11px;font-weight:700;color:#8E8E93;letter-spacing:.02em}
+.mission b{display:block;font-size:15px;font-weight:800;margin:1px 0 6px;line-height:1.3}
+.mission .mbar{height:6px;border-radius:3px;background:rgba(118,118,128,.2);overflow:hidden}
+.mission .mbar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#30D158,#0A84FF);transition:width .5s}
+.mission span{display:block;font-size:11.5px;color:#636366;margin-top:5px;font-weight:600}
+.mission.done-anim{animation:mpop .6s cubic-bezier(.2,1.4,.4,1)}
+@keyframes mpop{30%{transform:scale(1.08)}}
+.modehint{left:auto!important;right:14px!important;transform:none!important;max-width:calc(56% - 28px)}
+@media (max-width:640px){.mission{width:52%;padding:8px 10px}.mission b{font-size:13.5px}}
 </style>
 </head>
 <body>
@@ -412,6 +423,7 @@ button:active:not(:disabled){transform:scale(.97)}
         <button id="zout" aria-label="축소">－</button>
         <button id="zfit" aria-label="전체 보기">🧭</button>
       </div>
+      <div class="mission" id="missionCard" aria-live="polite"></div>
       <div class="modehint" id="modeHint"></div>
     </div>
     <div class="buildbar">
@@ -1722,6 +1734,52 @@ document.addEventListener('keydown', e => {
 });
 let rz = null;
 addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if(S && $('app').classList.contains('on')) drawBoard(); }, 150); });
+
+const cntCat = c => S.tiles.filter(x => x && ITEM[x].cat === c).length;
+const MISSION_LIST = [
+  ['🏠 첫 집 짓기', () => cntCat('home'), 1, 30],
+  ['🛣️ 도로 15칸 깔기 (끌어서 쭉!)', () => S.tiles.filter(x => x === 'road').length, 15, 30],
+  ['🧩 퍼즐 3개 풀기', () => S.stage, 3, 50],
+  ['🌳 나무·꽃 3개 심기', () => cntCat('nature'), 3, 30],
+  ['🏪 가게 2곳 열기', () => cntCat('shop'), 2, 50],
+  ['👥 인구 300명 모으기', () => stats().pop, 300, 60],
+  ['🧩 퍼즐 8개 풀기', () => S.stage, 8, 80],
+  ['😊 인구 500명 + 행복 70', () => { const s = stats(); return s.pop >= 500 && s.happy >= 70 ? 1 : 0; }, 1, 80],
+  ['🎡 놀이 시설 짓기', () => cntCat('fun'), 1, 100],
+  ['🏫 공공 건물 3곳', () => cntCat('pub'), 3, 100],
+  ['🧩 4×4 퍼즐 16개 모두', () => S.stage, 16, 150],
+  ['👥 인구 3,000명', () => stats().pop, 3000, 200],
+  ['🗼 랜드마크 세우기', () => cntCat('mark'), 1, 250],
+  ['🏆 퍼즐 32개 완공', () => S.stage, 32, 300],
+];
+/* ================= 🎯 미션 (레벨 가이드) ================= */
+const Missions = (() => {
+  const L = MISSION_LIST;
+  const cur = () => { S.mi = S.mi || 0; return L[S.mi]; };
+  let lastKey = '';
+  function render(pop){
+    const el = $('missionCard'); if(!el) return;
+    const m = cur();
+    if(!m){ el.innerHTML = `<small>🎯 미션 ${L.length}/${L.length}</small><b>🏅 모든 미션 완료!</b><span>최고의 개발자예요</span>`; return; }
+    const v = Math.max(0, Math.min(m[2], m[1]()));
+    const key = S.mi + ':' + v; if(key === lastKey && !pop) return; lastKey = key;
+    el.innerHTML = `<small>🎯 미션 ${S.mi+1} / ${L.length}</small><b>${m[0]}</b><div class="mbar"><i style="width:${Math.round(v/m[2]*100)}%"></i></div><span>${v.toLocaleString('ko-KR')} / ${m[2].toLocaleString('ko-KR')} · 보상 💰${m[3]}</span>`;
+    if(pop){ el.classList.remove('done-anim'); void el.offsetWidth; el.classList.add('done-anim'); }
+  }
+  function check(){
+    let m = cur(), n = 0, got = false;
+    while(m && m[1]() >= m[2] && n < 4){
+      S.coins += m[3]; got = true;
+      toast(`🏅 미션 완료! 「${m[0]}」 💰+${m[3]}`, 3200);
+      S.mi++; m = cur(); n++;
+    }
+    if(got){ save(); try{ Sfx.win(); City.fireworks(); }catch(e){} UI.hud(); if(UI.cards) UI.cards(); }
+    
+    render(got);
+  }
+  return {check, render};
+})();
+setInterval(() => { try{ if(S && document.getElementById('app').classList.contains('on')) Missions.check(); }catch(e){} }, 800);
 
 S = load();
 if(S && S.name){

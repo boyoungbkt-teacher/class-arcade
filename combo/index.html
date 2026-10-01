@@ -484,6 +484,17 @@ button:active:not(:disabled){transform:scale(.97)}
 .toast{background:rgba(28,28,30,.9);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-radius:18px;font-weight:600;font-size:14.5px;padding:12px 18px}
 @media (max-width:999px){ .map{margin:8px} .pz-body{margin:4px 8px 0} }
 
+
+.mission{position:absolute;left:14px;bottom:14px;z-index:2;width:min(270px,44%);background:rgba(255,255,255,.9);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border-radius:18px;padding:10px 13px 11px;color:#1C1C1E;box-shadow:0 10px 26px rgba(0,0,0,.2);border:0;text-align:left;font-family:var(--body)}
+.mission small{display:block;font-size:11px;font-weight:700;color:#8E8E93;letter-spacing:.02em}
+.mission b{display:block;font-size:15px;font-weight:800;margin:1px 0 6px;line-height:1.3}
+.mission .mbar{height:6px;border-radius:3px;background:rgba(118,118,128,.2);overflow:hidden}
+.mission .mbar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#30D158,#0A84FF);transition:width .5s}
+.mission span{display:block;font-size:11.5px;color:#636366;margin-top:5px;font-weight:600}
+.mission.done-anim{animation:mpop .6s cubic-bezier(.2,1.4,.4,1)}
+@keyframes mpop{30%{transform:scale(1.08)}}
+.modehint{left:auto!important;right:14px!important;transform:none!important;max-width:calc(56% - 28px)}
+@media (max-width:640px){.mission{width:52%;padding:8px 10px}.mission b{font-size:13.5px}}
 </style>
 </head>
 <body>
@@ -522,6 +533,7 @@ button:active:not(:disabled){transform:scale(.97)}
         <button id="nightBtn" aria-label="낮과 밤 바꾸기">🌙</button>
         <button id="soundBtn" aria-label="소리 켜고 끄기">🔊</button>
       </div>
+      <div class="mission" id="missionCard" aria-live="polite"></div>
       <div class="modehint" id="modeHint"></div>
     </div>
     <div class="buildbar">
@@ -868,7 +880,7 @@ const avail = it => !it.isl || it.isl.includes(S.cur);
 function islandStats(id){
   const tiles = (S.islands[id]||{}).tiles || [];
   let vis=0, job=0, env=0, roads=0, specials=0;
-  tiles.forEach(x => { if(!x) return; const it = ITEM[x]; vis += it.vis; job += it.job; env += it.env; if(x === 'road') roads++; if(it.cat === 'special') specials++; });
+  tiles.forEach((x,i) => { if(!x) return; if(!buildable(Math.floor(i/MAP), i%MAP)) return; const it = ITEM[x]; vis += it.vis; job += it.job; env += it.env; if(x === 'road') roads++; if(it.cat === 'special') specials++; });
   const e = clamp(Math.round(75 + env), 0, 100);
   const mult = e >= 70 ? 1.3 : e >= 40 ? 1 : 0.6;
   return {vis: Math.round(vis * (e < 40 ? .7 : 1)), rawVis: vis, job, env:e, mult, roads, specials};
@@ -1817,7 +1829,7 @@ const UI = (() => {
   function coinBump(){ const c = $('coinChip'); c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump'); }
   function hud(){
     const isl = ISL[S.cur], st = islandStats(S.cur);
-    $('islIcon').textContent = isl.emoji; $('islName').textContent = isl.name; $('islSub').textContent = `${isl.climate} · ${isl.terrain}`;
+    $('islIcon').textContent = isl.emoji; $('islName').textContent = isl.name; const stN = Math.max(1, starOf(st.vis)); $('islSub').textContent = `${'★'.repeat(stN)}${'☆'.repeat(5-stN)} · ${isl.climate} · ${isl.terrain}`;
     $('sVis').textContent = st.vis.toLocaleString('ko-KR'); $('sJob').textContent = st.job.toLocaleString('ko-KR');
     $('sEnv').textContent = st.env; const bar = $('envBar'); bar.style.width = st.env + '%'; bar.className = st.env >= 70 ? 'env-good' : st.env >= 40 ? 'env-mid' : 'env-bad';
     $('sCoin').textContent = S.coins.toLocaleString('ko-KR');
@@ -1941,7 +1953,7 @@ const Quiz = (() => {
     if(oi === q[2]){
       const beforeItems = new Set(I.filter(needMet).map(x => x.id)), beforeLand = landSize(totalCorrect()), beforeAllow = allowance();
       S.done[id] = S.done[id] || []; S.done[id].push(qi);
-      const first = !S.miss[key], reward = first ? 10 : 5, inc = 0, total = reward;
+      const first = !S.miss[key], reward = first ? 20 : 10, inc = 0, total = reward;
       S.coins += total;
       const unl = I.filter(x => needMet(x) && !beforeItems.has(x.id)).map(x => ({t:`🔓 ${x.name}${x.isl ? ' ' + x.isl.map(i => ISL[i].emoji).join('') : ''}`}));
       if(landSize(totalCorrect()) > beforeLand){ unl.push({t:'🗺️ 모든 섬의 땅이 넓어졌어요!', isl:1}); City.rebuild(); }
@@ -2128,6 +2140,58 @@ document.addEventListener('keydown', e => {
 const nm = $('nm');
 nm.oninput = () => $('startBtn').disabled = !nm.value.trim();
 $('startBtn').onclick = () => { S = fresh(nm.value.trim()); save(); Sfx.win(); World.open(true); };
+const allTiles = () => Object.values(S.islands).flatMap(x => x.tiles);
+const anyTile = f => Object.entries(S.islands).some(([id,x]) => x.tiles.some((t,i) => t && f(ITEM[t], id, i)));
+const cntAll = f => allTiles().filter(t => t && f(ITEM[t])).length;
+const bestIsl = f => Math.max(0, ...Object.keys(S.islands).map(id => f(islandStats(id))));
+const STAR_AT = [0, 200, 600, 1200, 2500, 4000];
+const starOf = v => STAR_AT.filter(x => v >= x).length;
+const MISSION_LIST = [
+  ['🧩 퍼즐 1개 풀기 (자금)', () => S.stage, 1, 20],
+  ['🔎 연구소에서 첫 허가', () => totalCorrect(), 1, 20],
+  ['🏨 기본 시설 2개 짓기', () => cntAll(it => it.cat === 'base' && !it.need), 2, 30],
+  ['⭐ 특산 체험 짓기', () => cntAll(it => it.cat === 'special'), 1, 50],
+  ['♻️ 쓰레기 처리장 짓기', () => cntAll(it => it.id === 'trash'), 1, 40],
+  ['🧩 퍼즐 5개 풀기', () => S.stage, 5, 60],
+  ['🌊 물 위 시설 짓기', () => cntAll(it => it.on === 'water'), 1, 60],
+  ['🗺️ 두 번째 섬 개척', () => Object.keys(S.islands).length, 2, 80],
+  ['🌿 환경 70 + 관광객 800', () => Object.keys(S.islands).some(id => { const s = islandStats(id); return s.env >= 70 && s.vis >= 800; }) ? 1 : 0, 1, 100],
+  ['🧩 퍼즐 16개 → 전망 타워', () => S.stage, 16, 150],
+  ['📣 관광 포스터 만들기', () => Object.keys(S.poster || {}).length, 1, 100],
+  ['🔎 허가 30개 받기', () => totalCorrect(), 30, 150],
+  ['🌟 ★★★★ 관광지 만들기', () => bestIsl(s => starOf(s.vis)), 4, 200],
+  ['🏆 스카이스크래퍼 타워 세우기', () => cntAll(it => it.id === 'skytower'), 1, 300],
+];
+/* ================= 🎯 미션 (레벨 가이드) ================= */
+const Missions = (() => {
+  const L = MISSION_LIST;
+  const cur = () => { S.mi = S.mi || 0; return L[S.mi]; };
+  let lastKey = '';
+  function render(pop){
+    const el = $('missionCard'); if(!el) return;
+    const m = cur();
+    if(!m){ el.innerHTML = `<small>🎯 미션 ${L.length}/${L.length}</small><b>🏅 모든 미션 완료!</b><span>최고의 개발자예요</span>`; return; }
+    const v = Math.max(0, Math.min(m[2], m[1]()));
+    const key = S.mi + ':' + v; if(key === lastKey && !pop) return; lastKey = key;
+    el.innerHTML = `<small>🎯 미션 ${S.mi+1} / ${L.length}</small><b>${m[0]}</b><div class="mbar"><i style="width:${Math.round(v/m[2]*100)}%"></i></div><span>${v.toLocaleString('ko-KR')} / ${m[2].toLocaleString('ko-KR')} · 보상 💰${m[3]}</span>`;
+    if(pop){ el.classList.remove('done-anim'); void el.offsetWidth; el.classList.add('done-anim'); }
+  }
+  function check(){
+    let m = cur(), n = 0, got = false;
+    while(m && m[1]() >= m[2] && n < 4){
+      S.coins += m[3]; got = true;
+      toast(`🏅 미션 완료! 「${m[0]}」 💰+${m[3]}`, 3200);
+      S.mi++; m = cur(); n++;
+    }
+    if(got){ save(); try{ Sfx.win(); City.fireworks(); }catch(e){} UI.hud(); if(UI.cards) UI.cards(); }
+    S.stars = S.stars || {};
+    for(const id of Object.keys(S.islands)){ const st = starOf(islandStats(id).vis); if(st > (S.stars[id]||1)){ S.stars[id] = st; save(); if(id === S.cur){ toast(`🌟 ${ISL[id].name} 관광지 등급 UP! ${'★'.repeat(st)}`, 3000); try{ City.fireworks(); Sfx.win(); }catch(e){} UI.hud(); } } else if(!S.stars[id]) S.stars[id] = st; }
+    render(got);
+  }
+  return {check, render};
+})();
+setInterval(() => { try{ if(S && document.getElementById('app').classList.contains('on')) Missions.check(); }catch(e){} }, 800);
+
 S = load();
 if(S && S.name){
   $('continueNote').textContent = `${S.name} 개발자님의 기록이 있어요. 이어서 해요!`;
