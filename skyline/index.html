@@ -382,6 +382,37 @@ button:active:not(:disabled){transform:scale(.97)}
 @keyframes mpop{30%{transform:scale(1.08)}}
 .modehint{left:auto!important;right:14px!important;transform:none!important;max-width:calc(56% - 28px)}
 @media (max-width:640px){.mission{width:52%;padding:8px 10px}.mission b{font-size:13.5px}}
+#liteBtn.on{background:#0A84FF!important;color:#fff!important}
+/* 🃏 카드 */
+.hudbtn.tcgbtn{background:linear-gradient(135deg,#8E5CF7,#0A84FF);border:0;box-shadow:0 8px 18px rgba(94,92,230,.35);position:relative}
+.hudbtn.tcgbtn.new::after{content:'NEW';position:absolute;top:-7px;right:-7px;background:#FF375F;color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:999px;animation:bump 1s infinite}
+#mCard .cardwrap{display:flex;flex-direction:column;align-items:center;gap:14px;width:min(420px,92vw)}
+#cardStage{perspective:1100px;width:100%;touch-action:none}
+#card3d{--rx:0deg;--ry:0deg;--hx:50%;--hy:50%;position:relative;width:100%;aspect-ratio:630/880;transform-style:preserve-3d;transform:rotateX(var(--rx)) rotateY(var(--ry));transition:transform .12s ease-out;border-radius:7%/5%}
+#card3d.flip{animation:cardIn 1.1s cubic-bezier(.2,.9,.3,1.15)}
+@keyframes cardIn{0%{transform:rotateY(180deg) scale(.6)}60%{transform:rotateY(-12deg) scale(1.06)}100%{transform:rotateY(0) scale(1)}}
+.cface{position:absolute;inset:0;border-radius:7%/5%;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;box-shadow:0 30px 70px rgba(0,0,0,.5)}
+.cface img{width:100%;height:100%;display:block;-webkit-touch-callout:default}
+.cface.back{transform:rotateY(180deg);display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,#3D7BE0,#0A1630);color:#fff;text-align:center;font-weight:900;letter-spacing:.08em}
+.cface.back div{font-size:64px;line-height:1.2}.cface.back b{display:block;font-size:18px}
+.holo{position:absolute;inset:0;pointer-events:none;mix-blend-mode:color-dodge;opacity:.0;background:linear-gradient(115deg,transparent 20%,rgba(255,80,200,.55) 36%,rgba(255,240,120,.55) 46%,rgba(80,255,200,.55) 56%,rgba(80,160,255,.55) 66%,transparent 80%);background-size:220% 220%;background-position:var(--hx) var(--hy)}
+#card3d[data-tier="RARE"] .holo{opacity:.18}
+#card3d[data-tier="EPIC"] .holo{opacity:.32}
+#card3d[data-tier="LEGENDARY"] .holo{opacity:.5}
+#card3d[data-tier="SECRET"] .holo{opacity:.7}
+.cardnote{color:#fff;font-size:15px;font-weight:600;text-align:center;text-shadow:0 2px 8px rgba(0,0,0,.4)}
+.cardnote b{color:#FFD60A}
+.cardtip{color:rgba(255,255,255,.7);font-size:12.5px;text-align:center}
+.cardbtns button{border:0;border-radius:999px;padding:11px 28px;background:rgba(255,255,255,.92);color:#1C1C1E;font-weight:800;font-size:15px}
+/* 🎁 럭키 상자 */
+.lucky{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%) scale(.6);opacity:0;z-index:95;pointer-events:none;text-align:center;color:#fff;text-shadow:0 4px 14px rgba(0,0,0,.45)}
+.lucky.on{animation:lucky 2.2s ease forwards}
+@keyframes lucky{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}25%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-60%) scale(1)}}
+.lk-box{font-size:96px;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;animation:wob .5s ease 2}
+@keyframes wob{25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}
+.lk-t{font-size:26px;font-weight:900}.lk-c{font-size:34px;font-weight:900;color:#FFD60A}
+.streak{display:inline-block;margin-left:6px;font-size:15px;background:linear-gradient(180deg,#FF9F0A,#FF375F);color:#fff;border-radius:999px;padding:2px 10px;vertical-align:middle}
+
 </style>
 </head>
 <body>
@@ -412,6 +443,7 @@ button:active:not(:disabled){transform:scale(.97)}
       <div class="chip"><span class="ic">💼</span><div><b id="sJob">0</b><small>일자리</small></div></div>
       <div class="chip"><span class="ic">😊</span><div><b id="sHappy">0</b><small>행복</small><div class="meter"><i id="happyBar"></i></div></div></div>
       <div class="chip coin" id="coinChip"><span class="ic">💰</span><b id="sCoin">0</b></div>
+      <button class="hudbtn tcgbtn" id="cardBtn">🃏 내 카드</button>
       <button class="iconbtn" id="nightBtn" aria-label="낮과 밤 바꾸기">🌙</button>
       <button class="iconbtn" id="soundBtn" aria-label="소리 켜고 끄기">🔊</button>
     </div>
@@ -422,6 +454,7 @@ button:active:not(:disabled){transform:scale(.97)}
         <button id="zin" aria-label="확대">＋</button>
         <button id="zout" aria-label="축소">－</button>
         <button id="zfit" aria-label="전체 보기">🧭</button>
+        <button id="liteBtn" aria-label="가벼운 모드 켜고 끄기" title="가벼운 모드">🪶</button>
       </div>
       <div class="mission" id="missionCard" aria-live="polite"></div>
       <div class="modehint" id="modeHint"></div>
@@ -506,6 +539,13 @@ button:active:not(:disabled){transform:scale(.97)}
   <div class="cert-code" id="dCode"></div>
   <div class="sub">선생님께 이 화면을 보여 주세요.</div>
   <button class="go" id="dGo">계속 꾸미기</button>
+</div></div>
+
+<div class="modal" id="mCard"><div class="cardwrap">
+  <div id="cardStage"><div id="card3d"><div class="cface front"><img id="cardImg" alt="내 수집 카드"><div class="holo"></div></div><div class="cface back"><div>🃏<b>CLASS ARCADE</b></div></div></div></div>
+  <div class="cardnote" id="cardNote"></div>
+  <div class="cardtip">카드를 기울이면 반짝여요 · 길게 눌러 저장할 수 있어요</div>
+  <div class="cardbtns"><button id="cardClose">닫기</button></div>
 </div></div>
 
 <div class="toast" id="toast"></div>
@@ -616,7 +656,7 @@ function fresh(name, city){
   for(let c=3;c<=10;c++) set(7,c,'road');
   const deco = [[1,2,'pine'],[2,1,'tree'],[1,11,'pine'],[2,12,'tree'],[12,11,'pine'],[11,12,'tree'],[12,2,'pond'],[12,1,'pond'],[13,2,'pond'],[11,1,'pine'],[0,6,'tree'],[13,8,'pine'],[5,0,'tree'],[8,13,'pine']];
   deco.forEach(([r,c,id]) => set(r,c,id));
-  return {name, city, stage:0, coins:150, tries:0, lockUntil:0, hint:{}, inputs:{}, tiles, seen:0, night:false, sound:true, tut:false, start:Date.now(), end:0, spent:0};
+  return {name, city, stage:0, coins:150, tries:0, lockUntil:0, hint:{}, inputs:{}, tiles, seen:0, night:false, sound:false, tut:false, start:Date.now(), end:0, spent:0};
 }
 
 /* ---------- 도시 통계 ---------- */
@@ -882,7 +922,7 @@ const City = (() => {
 
   function resize(){
     const r = map.getBoundingClientRect();
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    dpr = Math.min(window.devicePixelRatio || 1, (S && S.lite) ? 1 : 2);
     cw = r.width; ch = r.height;
     cv.width = Math.round(cw*dpr); cv.height = Math.round(ch*dpr);
     dirty = true;
@@ -892,7 +932,7 @@ const City = (() => {
     ox = cw/2; oy = (ch - (MAP*32 + 26)*z)/2 + 70*z;
     dirty = true;
   }
-  function zoomAt(f, sx, sy){
+  function zoomAt(f, sx, sy){ kickUntil = performance.now() + 400;
     const nz = clamp(z*f, .35, 2.6);
     ox = sx - (sx-ox)*(nz/z); oy = sy - (sy-oy)*(nz/z); z = nz; dirty = true;
   }
@@ -963,9 +1003,11 @@ const City = (() => {
   function fireworks(){ for(let i=0;i<6;i++) setTimeout(() => { const x = (Math.random()-.5)*MAP*40, y = -120 - Math.random()*120; burst(x, y, 34); }, i*260); }
 
   /* --- 프레임 --- */
-  let last = performance.now();
+  let last = performance.now(), lastDraw = 0, kickUntil = 0;
   function frame(now){
     const dt = Math.min(.05, (now - last)/1000); last = now;
+    if(S && S.lite && !dirty && !anim && !parts.length && ptrs.size === 0 && now > kickUntil && now - lastDraw < 700){ requestAnimationFrame(frame); return; }
+    lastDraw = now;
     if(!document.hidden && cw > 0){
       if(dirty) rebuild();
       g.setTransform(dpr,0,0,dpr,0,0);
@@ -984,7 +1026,7 @@ const City = (() => {
         if(p >= 1){ anim = null; dirty = true; }
       }
       // 자동차
-      for(const k of cars){
+      for(const k of (S.lite ? [] : cars)){
         stepCar(k, dt);
         const [ax,ay] = tileCenter(k.r,k.c), [bx,by] = tileCenter(k.nr,k.nc);
         const x = ax + (bx-ax)*k.t, y = ay + (by-ay)*k.t;
@@ -994,7 +1036,7 @@ const City = (() => {
         g.drawImage(emo(k.e), -8, -10, 16, 16); g.restore();
       }
       // 구름
-      for(const cl of clouds){ cl.x += cl.v*dt; if(cl.x > MAP*32 + 120) cl.x = -MAP*32 - 120; drawCloud(cl.x, cl.y, cl.s); }
+      for(const cl of (S.lite ? [] : clouds)){ cl.x += cl.v*dt; if(cl.x > MAP*32 + 120) cl.x = -MAP*32 - 120; drawCloud(cl.x, cl.y, cl.s); }
       // 입자
       parts = parts.filter(p => (p.life -= dt*(p.dust?1.6:.9)) > 0);
       for(const p of parts){ p.x += p.vx*dt; p.y += p.vy*dt; p.vy += (p.dust?20:60)*dt; g.globalAlpha = Math.max(0,p.life); g.fillStyle = p.col; g.beginPath(); g.arc(p.x, p.y, p.s, 0, Math.PI*2); g.fill(); }
@@ -1169,6 +1211,7 @@ const City = (() => {
   }
 
   return {
+    lite(){ resize(); dirty = true; kickUntil = performance.now() + 400; },
     init(){ resize(); fit(); resetCars(); initClouds(); new ResizeObserver(() => { const pw = cw, ph = ch; resize(); if(!pw) fit(); else { ox += (cw-pw)/2; oy += (ch-ph)/2; } }).observe(map); requestAnimationFrame(frame); },
     zoom(f){ zoomAt(f, cw/2, ch/2); },
     fit, setTool, undo, rebuild(){ dirty = true; }, fireworks, resetCars, snapshot, nextLandIn,
@@ -1387,7 +1430,7 @@ function submit(){
   for(let r=0;r<N;r++) for(let c=0;c<N;c++) if(cellVal(r,c) !== ans[r*N+c]) ok = false;
   if(ok){
     const beforeLand = landSize(S.stage);
-    const s0 = stats(), tx = taxOf(s0), reward = PUZ_REWARD[N][st.lv], total = reward + tx.tax;
+    const s0 = stats(), tx = taxOf(s0); const first = !S.pw; S.pw = false; S.streak = first ? (S.streak||0) + 1 : 0; S.bestStreak = Math.max(S.bestStreak||0, S.streak); const mult = S.streak >= 5 ? 2 : S.streak >= 3 ? 1.5 : 1; const reward = Math.round(PUZ_REWARD[N][st.lv] * mult), total = reward + tx.tax;
     S.coins += total; S.tries = 0; S.stage++; sel = null; focusLine = null;
     delete S.inputs[k];
     const finished = S.stage >= STAGES.length;
@@ -1406,11 +1449,12 @@ function submit(){
     if(landSize(S.stage) > beforeLand) uh += `<span class="land">🗺️ 땅이 넓어졌어요!</span>`;
     $('rwUnlocks').innerHTML = uh || '<span style="background:#F4F7FB;border-color:#DCE4EE">다음 퍼즐도 도전!</span>';
     $('rwGo').textContent = finished ? '🏆 완공 인증 보기' : '도시 지으러 가기';
-    $('mReward').classList.add('on');
+    if(mult > 1) $('rwRows').insertAdjacentHTML('afterbegin', `<div><span>🔥 ${S.streak}연속 한 번에 통과!</span><b>×${mult}</b></div>`);
+    $('mReward').classList.add('on'); setTimeout(() => Lucky.maybe(), 1200);
     UI.hud(); UI.topbar(); UI.cards(); UI.advisor(true);
     drawBoard(); if(!finished){ firstEmpty(); Lab.load(); }
   } else {
-    S.tries++; Sfx.wrong();
+    S.tries++; S.pw = true; S.wr = (S.wr||0) + 1; Sfx.wrong();
     const b = $('board'); b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake');
     $('msg').className = 'msg bad';
     if(S.tries >= 3){
@@ -1780,6 +1824,142 @@ const Missions = (() => {
   return {check, render};
 })();
 setInterval(() => { try{ if(S && document.getElementById('app').classList.contains('on')) Missions.check(); }catch(e){} }, 800);
+
+const syncLite = () => { const b = $('liteBtn'); if(b){ b.classList.toggle('on', !!(S && S.lite)); } };
+$('liteBtn').onclick = () => { S.lite = !S.lite; save(); City.lite(); syncLite(); Sfx.tap(); toast(S.lite ? '🪶 가벼운 모드 켜짐 · 자동차·구름·날씨를 끄고 화면을 덜 그려요' : '✨ 가벼운 모드 꺼짐'); };
+setInterval(syncLite, 1500);
+
+const CARD_ART = () => City.snapshot();
+const CARD_INFO = () => { const st = stats(); return {game:'Skyline City', prefix:'SKY', name:S.name, sub:S.city, type:'🏙️ 건축가', lv:(S.mi||0)+1, no:S.stage, p:S.stage/32,
+  stats:[['🧩','퍼즐 해결',`${S.stage}/32`],['👥','인구',st.pop.toLocaleString('ko-KR')],['😊','행복',String(st.happy)]],
+  foot:[`🎯 미션 ${S.mi||0}/14`,`🔥 최고 ${S.bestStreak||0}연속`,`🎁 럭키 ${S.lucky||0}`], nums:[S.stage, S.wr||0]}; };
+/* ================= 🎁 럭키 상자 ================= */
+const Lucky = (() => {
+  function show(amount){
+    let el = document.getElementById('luckyFx');
+    if(!el){ el = document.createElement('div'); el.id = 'luckyFx'; el.className = 'lucky'; document.body.appendChild(el); }
+    el.innerHTML = `<div class="lk-box">🎁</div><div class="lk-t">럭키 상자!</div><div class="lk-c">💰 +${amount}</div>`;
+    el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
+    clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('on'), 2200);
+  }
+  return {
+    maybe(){
+      if(!S || Math.random() > 0.12) return;
+      const pool = [30,30,40,50,50,80,80,120,200], amount = pool[Math.floor(Math.random()*pool.length)];
+      S.coins += amount; S.lucky = (S.lucky||0) + 1; save();
+      show(amount); try{ Sfx.coin(); City.fireworks(); }catch(e){} UI.hud(); if(UI.cards) UI.cards();
+    }
+  };
+})();
+
+/* ================= 🃏 내 카드 (진화하는 수집 카드) ================= */
+const TCG = (() => {
+  const TIERS = [
+    {k:'COMMON',    ko:'커먼',      sym:'●', a:'#DCE1E8', b:'#A9B2BF', ink:'#3A4250'},
+    {k:'RARE',      ko:'레어',      sym:'◆', a:'#6CC4FF', b:'#0A6FE0', ink:'#063B7A'},
+    {k:'EPIC',      ko:'에픽',      sym:'✦', a:'#C59BFF', b:'#6A3FE0', ink:'#3B1C86'},
+    {k:'LEGENDARY', ko:'레전더리',  sym:'★', a:'#FFE680', b:'#FF9F0A', ink:'#6B3B00'},
+    {k:'SECRET',    ko:'시크릿',    sym:'✶', a:'#FF8AD8', b:'#5AC8FA', ink:'#3A1060'},
+  ];
+  const tierOf = p => p >= 1 ? 4 : p >= .8 ? 3 : p >= .5 ? 2 : p >= .25 ? 1 : 0;
+  function code(info){
+    let h = 2166136261; const src = [S.name, info.prefix, ...info.nums].join('|');
+    for(const ch of src){ h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; }
+    const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s = '';
+    for(let i=0;i<4;i++){ s += A[h % A.length]; h = Math.floor(h / A.length) || (h*7+13); }
+    return `${info.prefix}-${info.nums.join('-')}-${s}`;
+  }
+  function rr(g, x, y, w, h, r){ g.beginPath(); g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r); g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath(); }
+  async function art(){
+    const a = CARD_ART();
+    if(typeof a === 'string'){ const im = new Image(); im.src = a; try{ await im.decode(); }catch(e){} return im; }
+    return a;
+  }
+  async function render(){
+    const info = CARD_INFO(), t = TIERS[tierOf(info.p)], W = 630, H = 880;
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const g = cv.getContext('2d');
+    const F = '"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif';
+    try{ await document.fonts.ready; }catch(e){}
+    // 바깥 테두리
+    const fr = g.createLinearGradient(0,0,W,H); fr.addColorStop(0,t.a); fr.addColorStop(1,t.b);
+    if(t.k === 'SECRET'){ fr.addColorStop(.33,'#FFE680'); fr.addColorStop(.66,'#8EF0B8'); }
+    rr(g,0,0,W,H,40); g.fillStyle = fr; g.fill();
+    // 안쪽 판
+    rr(g,20,20,W-40,H-40,28); const pn = g.createLinearGradient(0,20,0,H); pn.addColorStop(0,'#FFFFFF'); pn.addColorStop(1,'#F2F4F8'); g.fillStyle = pn; g.fill();
+    // 이름 · 레벨
+    g.fillStyle = '#16233A'; g.font = `900 44px ${F}`; g.textBaseline = 'alphabetic';
+    let nm = info.name; while(g.measureText(nm).width > 360 && nm.length > 1) nm = nm.slice(0,-1);
+    g.fillText(nm, 48, 92);
+    g.textAlign = 'right'; g.fillStyle = t.ink; g.font = `800 22px ${F}`; g.fillText('Lv.', W-118, 92);
+    g.font = `900 52px ${F}`; g.fillText(String(info.lv), W-46, 94); g.textAlign = 'left';
+    // 타입 뱃지
+    g.font = `800 20px ${F}`; const tw = g.measureText(info.type).width + 28;
+    rr(g, 46, 108, tw, 34, 17); g.fillStyle = t.b; g.fill(); g.fillStyle = '#fff'; g.fillText(info.type, 60, 132);
+    g.fillStyle = '#8E8E93'; g.font = `700 18px ${F}`; g.fillText(info.sub, 46 + tw + 12, 132);
+    // 그림 창
+    const ax = 46, ay = 158, aw = W - 92, ah = 330;
+    rr(g, ax-6, ay-6, aw+12, ah+12, 22); g.fillStyle = fr; g.fill();
+    g.save(); rr(g, ax, ay, aw, ah, 18); g.clip();
+    const im = await art();
+    try{ const iw = im.naturalWidth || im.width, ih = im.naturalHeight || im.height, sc = Math.max(aw/iw, ah/ih) * 1.18, dw = iw*sc, dh = ih*sc; g.drawImage(im, ax + (aw-dw)/2, ay + (ah-dh)/2 + dh*.06, dw, dh); }catch(e){ g.fillStyle = '#DDE6F0'; g.fillRect(ax,ay,aw,ah); }
+    if(t.k === 'LEGENDARY' || t.k === 'SECRET'){
+      g.globalCompositeOperation = 'overlay'; for(let i=-8;i<14;i++){ const x = ax + i*60; const lg = g.createLinearGradient(x,ay,x+120,ay+ah); lg.addColorStop(0,'rgba(255,0,150,.0)'); lg.addColorStop(.5,'rgba(255,255,255,.35)'); lg.addColorStop(1,'rgba(0,200,255,0)'); g.fillStyle = lg; g.fillRect(x, ay, 60, ah); }
+      g.globalCompositeOperation = 'source-over';
+    }
+    g.restore();
+    // 설명 띠
+    rr(g, 46, ay + ah + 16, aw, 36, 12); g.fillStyle = 'rgba(22,35,58,.06)'; g.fill();
+    g.fillStyle = '#5A6B84'; g.font = `600 17px ${F}`; g.textAlign = 'center';
+    g.fillText(`No.${String(info.no).padStart(3,'0')} · ${info.game} · ${new Date().toLocaleDateString('ko-KR')}`, W/2, ay + ah + 40); g.textAlign = 'left';
+    // 능력치
+    let y = ay + ah + 74;
+    info.stats.forEach(([e, label, val]) => {
+      g.beginPath(); g.arc(70, y + 22, 22, 0, Math.PI*2); g.fillStyle = t.a; g.fill();
+      g.font = `26px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`; g.textAlign = 'center'; g.fillText(e, 70, y + 31); g.textAlign = 'left';
+      g.fillStyle = '#16233A'; g.font = `800 25px ${F}`; g.fillText(label, 104, y + 31);
+      g.textAlign = 'right'; g.font = `900 34px ${F}`; g.fillStyle = t.ink; g.fillText(val, W - 48, y + 34); g.textAlign = 'left';
+      y += 58;
+    });
+    g.strokeStyle = 'rgba(22,35,58,.12)'; g.lineWidth = 2; g.beginPath(); g.moveTo(46, y + 4); g.lineTo(W-46, y + 4); g.stroke();
+    // 아래 작은 정보
+    g.font = `700 16px ${F}`; g.fillStyle = '#5A6B84';
+    const cw = (W - 92) / info.foot.length;
+    info.foot.forEach((f, i) => { g.textAlign = 'center'; g.fillText(f, 46 + cw*i + cw/2, y + 34); }); g.textAlign = 'left';
+    // 희귀도 · 코드
+    g.fillStyle = t.ink; g.font = `900 20px ${F}`; g.fillText(`${t.sym} ${t.k}`, 48, H - 44);
+    g.textAlign = 'right'; g.fillStyle = '#8E8E93'; g.font = `700 15px ui-monospace,Menlo,monospace`; g.fillText(code(info), W - 48, H - 44); g.textAlign = 'left';
+    return {url: cv.toDataURL('image/png'), tier: tierOf(info.p), t};
+  }
+  async function open(){
+    $('mCard').classList.add('on');
+    const c3 = $('card3d'), img = $('cardImg');
+    const r = await render(), isNew = (S.cardSeen ?? -1) < r.tier;
+    img.src = r.url;
+    c3.dataset.tier = r.t.k;
+    const info = CARD_INFO(), next = [.25,.5,.8,1].find(x => x > info.p);
+    $('cardNote').innerHTML = next ? `다음 단계 <b>${TIERS[tierOf(next)].k}</b>까지 <b>${Math.ceil((next - info.p)*100)}%</b> 남았어요` : '✨ 최고 단계 시크릿 카드예요!';
+    c3.classList.remove('flip'); void c3.offsetWidth;
+    if(isNew){ c3.classList.add('flip'); setTimeout(() => { try{ Sfx.win(); City.fireworks(); }catch(e){} }, 650); S.cardSeen = r.tier; save(); syncBtn(); }
+  }
+  function syncBtn(){ const b = $('cardBtn'); if(!b || !S) return; const info = CARD_INFO(); b.classList.toggle('new', (S.cardSeen ?? -1) < tierOf(info.p)); }
+  function check(){
+    if(!S) return; const tr = tierOf(CARD_INFO().p);
+    if(S.cardTier === undefined) S.cardTier = tr;
+    if(tr > S.cardTier){ S.cardTier = tr; save(); toast(`🃏 내 카드가 ${TIERS[tr].k}로 진화했어요! 카드를 열어 보세요`, 3500); }
+    syncBtn();
+  }
+  // 기울이기 (손가락·마우스 따라 반짝)
+  const wrap = $('cardStage');
+  const tilt = e => { const r = wrap.getBoundingClientRect(), x = (e.clientX - r.left)/r.width, y = (e.clientY - r.top)/r.height;
+    $('card3d').style.setProperty('--rx', `${(0.5 - y)*22}deg`); $('card3d').style.setProperty('--ry', `${(x - 0.5)*26}deg`);
+    $('card3d').style.setProperty('--hx', `${x*100}%`); $('card3d').style.setProperty('--hy', `${y*100}%`); };
+  wrap.addEventListener('pointermove', tilt); wrap.addEventListener('pointerdown', tilt);
+  wrap.addEventListener('pointerleave', () => { $('card3d').style.setProperty('--rx','0deg'); $('card3d').style.setProperty('--ry','0deg'); });
+  $('cardBtn').onclick = () => { Sfx.tap(); open(); };
+  $('cardClose').onclick = () => $('mCard').classList.remove('on');
+  setInterval(() => { try{ if(S && document.getElementById('app').classList.contains('on')) check(); }catch(e){} }, 1000);
+  return {open, render, tierOf};
+})();
 
 S = load();
 if(S && S.name){
